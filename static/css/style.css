@@ -128,40 +128,6 @@ h2 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
 }
 
 .ingredients .amount { text-align: right; padding-right: 0.4rem; white-space: nowrap; }
-
-.danger-zone {
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
-}
-
-.btn-delete {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 0.8rem;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-}
-
-.btn-delete:hover { color: var(--danger); }
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
-}
-
-.btn-delete {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 0.8rem;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-}
-
-.btn-delete:hover { color: var(--danger); }
 .ingredients .unit { color: var(--muted); width: 60px; }
 
 /* --- Steps --- */
@@ -204,6 +170,59 @@ h2 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
   color: var(--muted);
   opacity: 0.6;
 }
+
+.recipe-form input,
+.recipe-form textarea {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.65rem 0.85rem;
+  width: 100%;
+}
+
+.recipe-form textarea { resize: vertical; }
+
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+legend {
+  font-size: 0.875rem;
+  color: var(--muted);
+  padding: 0 0.4rem;
+}
+
+/* --- Ingredient rows --- */
+
+.ingredient-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 80px;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ingredient-row[draggable] {
+  grid-template-columns: 24px 1fr 100px 80px;
+  cursor: default;
+}
+
+.drag-handle {
+  color: var(--muted);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  user-select: none;
+}
+
+.ingredient-row.dragging { opacity: 0.4; }
+.ingredient-row.drag-over { outline: 2px solid var(--accent); border-radius: var(--radius); }
 
 /* --- Tag widget --- */
 
@@ -266,7 +285,6 @@ h2 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
 }
 
 .tag-remove:hover { color: var(--danger); }
-
 .tag-pill-static { cursor: default; }
 
 .tag-list {
@@ -277,57 +295,6 @@ h2 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
 }
 
 .tag-list-card { margin-top: 0.6rem; }
-
-.recipe-form input,
-.recipe-form textarea {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 1rem;
-  padding: 0.65rem 0.85rem;
-  width: 100%;
-}
-
-.recipe-form textarea { resize: vertical; }
-
-fieldset {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1rem;
-}
-
-legend {
-  font-size: 0.875rem;
-  color: var(--muted);
-  padding: 0 0.4rem;
-}
-
-.ingredient-row {
-  display: grid;
-  grid-template-columns: 1fr 100px 80px;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.ingredient-row[draggable] {
-  grid-template-columns: 24px 1fr 100px 80px;
-  cursor: default;
-}
-
-.drag-handle {
-  color: var(--muted);
-  cursor: grab;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  user-select: none;
-}
-
-.ingredient-row.dragging { opacity: 0.4; }
-.ingredient-row.drag-over { outline: 2px solid var(--accent); border-radius: var(--radius); }
 
 /* --- Cook mode --- */
 
@@ -345,7 +312,6 @@ legend {
   z-index: 5;
 }
 
-/* Overlay */
 .overlay {
   display: none;
   position: fixed;
@@ -356,7 +322,6 @@ legend {
 
 .overlay.open { display: block; }
 
-/* Slide-in panel */
 .ing-panel {
   position: fixed;
   top: 0;
@@ -391,3 +356,23 @@ legend {
   cursor: pointer;
   padding: 0.25rem 0.5rem;
 }
+
+/* --- Danger zone --- */
+
+.danger-zone {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.btn-delete:hover { color: var(--danger); }

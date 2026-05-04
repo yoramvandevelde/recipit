@@ -45,7 +45,7 @@
       <div class="ingredient-row" draggable="true">
         <span class="drag-handle">⠿</span>
         <input name="item_{{ loop.index0 }}" placeholder="Ingredient" value="{{ ing.item }}">
-        <input name="amount_{{ loop.index0 }}" placeholder="Hoeveelheid" type="number" step="any" value="{{ ing.amount if ing.amount else '' }}" class="amount-field">
+        <input name="amount_{{ loop.index0 }}" placeholder="Hoeveelheid" type="number" step="any" value="{{ ing.amount if ing.amount is not none else '' }}" class="amount-field">
         <input name="unit_{{ loop.index0 }}" placeholder="Eenheid" value="{{ ing.unit if ing.unit else '' }}" class="unit-field">
       </div>
       {% endfor %}

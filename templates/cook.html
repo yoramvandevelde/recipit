@@ -25,7 +25,7 @@
       {% for ing in ingredients %}
       <tr>
         <td>{{ ing.item }}</td>
-        <td class="amount">{% if ing.amount %}{{ ing.amount | int if ing.amount == ing.amount | int else ing.amount }}{% endif %}</td>
+        <td class="amount">{% if ing.amount is not none %}{{ ing.amount | int if ing.amount == ing.amount | int else ing.amount }}{% endif %}</td>
         <td class="unit">{{ ing.unit or '' }}</td>
       </tr>
       {% endfor %}

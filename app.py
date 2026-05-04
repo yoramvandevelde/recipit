@@ -9,6 +9,7 @@ def get_db():
     if "db" not in g:
         g.db = sqlite3.connect(DATABASE)
         g.db.row_factory = sqlite3.Row
+        g.db.execute("PRAGMA foreign_keys = ON")
     return g.db
 
 
@@ -135,23 +136,22 @@ def _save_recipe(id):
         )
         db.execute("DELETE FROM ingredient WHERE recipe_id=?", [id])
 
-    i = 0
-    while True:
+    ingredient_indexes = sorted(
+        int(k.split("_")[1])
+        for k in f.keys()
+        if k.startswith("item_") and k.split("_")[1].isdigit()
+    )
+
+    for i in ingredient_indexes:
         item = f.get(f"item_{i}", "").strip()
         if not item:
-            i += 1
-            # stop na 3 lege rijen op rij (voor als iemand een gat heeft gelaten)
-            if i > (last_filled + 3 if 'last_filled' in dir() else 3):
-                break
             continue
-        last_filled = i
         amount = f.get(f"amount_{i}", "").strip()
         unit = f.get(f"unit_{i}", "").strip()
         db.execute(
             "INSERT INTO ingredient (recipe_id, item, amount, unit, sort_order) VALUES (?, ?, ?, ?, ?)",
             [id, item, float(amount) if amount else None, unit or None, i],
         )
-        i += 1
 
     db.commit()
     return redirect(url_for("view_recipe", id=id))
