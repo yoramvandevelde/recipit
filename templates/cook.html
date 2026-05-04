@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ recipe.title }} — kookmodus{% endblock %}
+
+{% block content %}
+<div class="cook-header">
+  <a href="/recipes/{{ recipe.id }}" class="back">← terug</a>
+</div>
+
+<button id="ing-toggle" class="btn">Ingrediënten</button>
+
+<h1>{{ recipe.title }}</h1>
+<p class="meta">{{ recipe.servings }} personen{% if recipe.cook_time %} &middot; {{ recipe.cook_time }}{% endif %}</p>
+
+<pre class="steps steps-cook">{{ recipe.steps }}</pre>
+
+<!-- Slide-in panel -->
+<div id="ing-overlay" class="overlay"></div>
+<aside id="ing-panel" class="ing-panel">
+  <div class="ing-panel-header">
+    <h2>Ingrediënten</h2>
+    <button id="ing-close" class="btn-close">✕</button>
+  </div>
+  <table class="ingredients">
+    <tbody>
+      {% for ing in ingredients %}
+      <tr>
+        <td>{{ ing.item }}</td>
+        <td class="amount">{% if ing.amount %}{{ ing.amount | int if ing.amount == ing.amount | int else ing.amount }}{% endif %}</td>
+        <td class="unit">{{ ing.unit or '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</aside>
+{% endblock %}

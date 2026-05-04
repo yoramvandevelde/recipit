@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{% if recipe %}Bewerken{% else %}Nieuw recept{% endif %}{% endblock %}
+
+{% block content %}
+<a href="{% if recipe %}/recipes/{{ recipe.id }}{% else %}/{% endif %}" class="back">← terug</a>
+
+<h1>{% if recipe %}{{ recipe.title }} bewerken{% else %}Nieuw recept{% endif %}</h1>
+
+<form method="POST" class="recipe-form">
+  <label>
+    Titel
+    <input name="title" value="{{ recipe.title if recipe else '' }}" required>
+  </label>
+
+  <label>
+    Personen
+    <input name="servings" type="number" min="1" value="{{ recipe.servings if recipe else 2 }}">
+  </label>
+
+  <label>
+    Kooktijd <span class="label-optional">(optioneel)</span>
+    <input name="cook_time" placeholder="bijv. 45 min" value="{{ recipe.cook_time if recipe and recipe.cook_time else '' }}">
+  </label>
+
+  <div class="form-group">
+    <span class="form-label">Tags <span class="label-optional">(optioneel, spatie of enter om toe te voegen)</span></span>
+    <div id="tag-input-box" class="tag-input-box">
+      {% if recipe and recipe.tags %}
+        {% for tag in recipe.tags.split(',') %}
+          {% set t = tag.strip() %}
+          {% if t %}
+          <span class="tag-pill">{{ t }}<button type="button" class="tag-remove" data-tag="{{ t }}">×</button></span>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+      <input id="tag-text" type="text" placeholder="{% if not recipe or not recipe.tags %}bijv. pasta, soep…{% endif %}" autocomplete="off">
+    </div>
+    <input type="hidden" name="tags_value" id="tags-value" value="{{ recipe.tags if recipe and recipe.tags else '' }}">
+  </div>
+
+  <fieldset>
+    <legend>Ingrediënten</legend>
+    <div id="ingredient-list">
+      {% for ing in ingredients %}
+      <div class="ingredient-row" draggable="true">
+        <span class="drag-handle">⠿</span>
+        <input name="item_{{ loop.index0 }}" placeholder="Ingredient" value="{{ ing.item }}">
+        <input name="amount_{{ loop.index0 }}" placeholder="Hoeveelheid" type="number" step="any" value="{{ ing.amount if ing.amount else '' }}" class="amount-field">
+        <input name="unit_{{ loop.index0 }}" placeholder="Eenheid" value="{{ ing.unit if ing.unit else '' }}" class="unit-field">
+      </div>
+      {% endfor %}
+      <div class="ingredient-row" draggable="true">
+        <span class="drag-handle">⠿</span>
+        <input name="item_{{ ingredients|length }}" placeholder="Ingredient">
+        <input name="amount_{{ ingredients|length }}" placeholder="Hoeveelheid" type="number" step="any" class="amount-field">
+        <input name="unit_{{ ingredients|length }}" placeholder="Eenheid" class="unit-field">
+      </div>
+    </div>
+  </fieldset>
+
+  <label>
+    Bereiding
+    <textarea name="steps" rows="10">{{ recipe.steps if recipe else '' }}</textarea>
+  </label>
+
+  <button type="submit" class="btn btn-primary">Opslaan</button>
+</form>
+{% endblock %}

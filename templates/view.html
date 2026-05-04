@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ recipe.title }}{% endblock %}
+
+{% block content %}
+<a href="/" class="back">← terug</a>
+
+<h1>{{ recipe.title }}</h1>
+<p class="meta">{{ recipe.servings }} personen{% if recipe.cook_time %} &middot; {{ recipe.cook_time }}{% endif %}</p>
+
+{% if recipe.tags %}
+<div class="tag-list">
+  {% for tag in recipe.tags.split(',') %}{% set t = tag.strip() %}{% if t %}<span class="tag-pill tag-pill-static">{{ t }}</span>{% endif %}{% endfor %}
+</div>
+{% endif %}
+
+<div class="actions">
+  <a href="/recipes/{{ recipe.id }}/edit" class="btn">Bewerken</a>
+  <a href="/recipes/{{ recipe.id }}/cook" class="btn btn-primary">Kookmodus</a>
+</div>
+
+<h2>Ingrediënten</h2>
+<table class="ingredients">
+  <tbody>
+    {% for ing in ingredients %}
+    <tr>
+      <td>{{ ing.item }}</td>
+      <td class="amount">{% if ing.amount %}{{ ing.amount | int if ing.amount == ing.amount | int else ing.amount }}{% endif %}</td>
+      <td class="unit">{{ ing.unit or '' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Bereiding</h2>
+<pre class="steps">{{ recipe.steps }}</pre>
+
+<div class="danger-zone">
+  <form action="/recipes/{{ recipe.id }}/delete" method="POST">
+    <button class="btn-delete" onclick="return confirm('Recept verwijderen?')">Verwijderen</button>
+  </form>
+</div>
+{% endblock %}
