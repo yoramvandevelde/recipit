@@ -15,6 +15,9 @@ instance/
 .DS_Store
 Thumbs.db
 
+# private shizzle
+.env
+
 # Editor
 *.swp
 *.swo
