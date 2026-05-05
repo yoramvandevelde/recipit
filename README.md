@@ -2,6 +2,8 @@
 
 A self-hosted web application for managing recipes with cook mode, shopping list integration, and automatic Docker builds.
 
+![image](recipit.png)
+
 ## Features
 
 -  Create, edit, and delete recipes
