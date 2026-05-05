@@ -148,6 +148,16 @@ def delete_recipe(id):
     return redirect(url_for("index"))
 
 
+@app.route("/recipes/<int:id>/cook")
+def cook(id):
+    db = get_db()
+    recipe = db.execute("SELECT * FROM recipe WHERE id = ?", [id]).fetchone()
+    if not recipe:
+        return "Recept niet gevonden", 404
+    ingredients = db.execute("SELECT * FROM ingredient WHERE recipe_id = ? ORDER BY sort_order", [id]).fetchall()
+    return render_template("cook.html", recipe=recipe, ingredients=ingredients)
+
+
 @app.route("/recipes/<int:id>/shop", methods=["POST"])
 def add_to_shopping_list(id):
     if not HA_URL or not HA_TOKEN:

@@ -16,7 +16,7 @@
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, sans-serif;
+  font-family: "Lexend", sans-serif;
   font-size: 1rem;
   line-height: 1.6;
   min-height: 100vh;
@@ -189,17 +189,22 @@ h2 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
 }
 
 .recipe-card {
-  display: block;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 1.25rem;
-  text-decoration: none;
   color: var(--text);
   transition: background 0.15s;
 }
 
 .recipe-card:hover { background: #292524; }
+
+.recipe-card-link {
+  display: block;
+  text-decoration: none;
+  color: var(--text);
+}
+
 .recipe-card h2 { font-size: 1.05rem; margin: 0 0 0.4rem; }
 
 /* --- Ingredients table --- */
@@ -374,7 +379,8 @@ legend {
 }
 
 .tag-remove:hover { color: var(--danger); }
-.tag-pill-static { cursor: default; }
+.tag-pill-static { cursor: pointer; text-decoration: none; }
+.tag-pill-static:hover { background: rgba(255,255,255,0.15); }
 
 .tag-list {
   display: flex;

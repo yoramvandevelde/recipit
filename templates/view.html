@@ -13,7 +13,7 @@
 
 {% if recipe.tags %}
 <div class="tag-list">
-  {% for tag in recipe.tags.split(',') %}{% set t = tag.strip() %}{% if t %}<span class="tag-pill tag-pill-static">{{ t }}</span>{% endif %}{% endfor %}
+  {% for tag in recipe.tags.split(',') %}{% set t = tag.strip() %}{% if t %}<a href="/search?q={{ t }}" class="tag-pill tag-pill-static">{{ t }}</a>{% endif %}{% endfor %}
 </div>
 {% endif %}
 
@@ -21,7 +21,7 @@
   <a href="/recipes/{{ recipe.id }}/edit" class="btn">Bewerken</a>
   <a href="/recipes/{{ recipe.id }}/cook" class="btn btn-primary">Kookmodus</a>
   <button class="btn" id="shop-btn" data-id="{{ recipe.id }}">
-    <i class="fa-solid fa-cart-plus"></i> Naar boodschappenlijst
+    <i class="fa-solid fa-cart-plus"></i>
   </button>
 </div>
 

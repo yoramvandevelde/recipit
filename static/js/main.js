@@ -195,13 +195,13 @@ shopBtn?.addEventListener("click", async () => {
   try {
     const res = await fetch(`/recipes/${id}/shop`, { method: "POST" });
     if (res.ok) {
-      shopBtn.innerHTML = '<i class="fa-solid fa-check"></i> Toegevoegd';
+      shopBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
     } else {
-      shopBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Mislukt';
+      shopBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
       shopBtn.disabled = false;
     }
   } catch {
-    shopBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Mislukt';
+    shopBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
     shopBtn.disabled = false;
   }
 });
