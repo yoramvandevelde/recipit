@@ -182,3 +182,26 @@ tagBox?.querySelectorAll(".tag-remove").forEach(btn => {
     btn.closest(".tag-pill").remove();
   });
 });
+
+// --- Boodschappenlijst ---
+
+const shopBtn = document.getElementById("shop-btn");
+
+shopBtn?.addEventListener("click", async () => {
+  const id = shopBtn.dataset.id;
+  shopBtn.disabled = true;
+  shopBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Bezig…';
+
+  try {
+    const res = await fetch(`/recipes/${id}/shop`, { method: "POST" });
+    if (res.ok) {
+      shopBtn.innerHTML = '<i class="fa-solid fa-check"></i> Toegevoegd';
+    } else {
+      shopBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Mislukt';
+      shopBtn.disabled = false;
+    }
+  } catch {
+    shopBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Mislukt';
+    shopBtn.disabled = false;
+  }
+});

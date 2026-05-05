@@ -1,8 +1,21 @@
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, g
+import os
+import urllib.request
+import urllib.error
+import json
+from flask import Flask, render_template, request, redirect, url_for, g, jsonify
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 app = Flask(__name__)
 DATABASE = "recepten.db"
+HA_URL = os.environ.get("HA_URL", "").rstrip("/")
+HA_TOKEN = os.environ.get("HA_TOKEN", "")
+HA_LIST = "todo.shopping_list"
 
 
 def get_db():
@@ -135,7 +148,49 @@ def delete_recipe(id):
     return redirect(url_for("index"))
 
 
-@app.route("/recipes/<int:id>/cook")
+@app.route("/recipes/<int:id>/shop", methods=["POST"])
+def add_to_shopping_list(id):
+    if not HA_URL or not HA_TOKEN:
+        return jsonify({"error": "HA niet geconfigureerd"}), 503
+
+    db = get_db()
+    ingredients = db.execute(
+        "SELECT * FROM ingredient WHERE recipe_id = ? ORDER BY sort_order", [id]
+    ).fetchall()
+
+    errors = []
+    for ing in ingredients:
+        item = ing["item"]
+        if ing["amount"] and ing["unit"]:
+            item = f"{ing['item']} - {ing['amount']:g} {ing['unit']}"
+        elif ing["amount"]:
+            item = f"{ing['item']} - {ing['amount']:g}x"
+
+        payload = json.dumps({
+            "entity_id": HA_LIST,
+            "item": item,
+        }).encode()
+
+        req = urllib.request.Request(
+            f"{HA_URL}/api/services/todo/add_item",
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {HA_TOKEN}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            urllib.request.urlopen(req, timeout=5)
+        except urllib.error.URLError as e:
+            errors.append(str(e))
+
+    if errors:
+        return jsonify({"error": errors}), 502
+    return "", 204
+
+
+
 def cook(id):
     db = get_db()
     recipe = db.execute("SELECT * FROM recipe WHERE id = ?", [id]).fetchone()

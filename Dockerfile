@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN pip install flask gunicorn
+RUN pip install flask gunicorn python-dotenv
 
 COPY . .
 

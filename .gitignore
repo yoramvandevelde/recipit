@@ -8,6 +8,11 @@ venv/
 .venv/
 env/
 
+# Database
+*.db
+*.db-shm
+*.db-wal
+
 # Flask
 instance/
 
@@ -15,10 +20,10 @@ instance/
 .DS_Store
 Thumbs.db
 
-# private shizzle
+# Environment
 .env
-
-# Editor
+.env.*
+!.env.example
 *.swp
 *.swo
 .idea/
