@@ -8,6 +8,7 @@ on:
       - 'static/**'
       - 'Dockerfile'
       - 'requirements.txt'
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
