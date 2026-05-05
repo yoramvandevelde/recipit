@@ -43,8 +43,9 @@ python -c "import bcrypt; print(bcrypt.hashpw(b'your_password', bcrypt.gensalt()
 
 # Generate secret key
 python -c "import secrets; print(secrets.token_hex(32))"
-Development
-bash
+
+## Development
+```bash
 git clone <repository>
 cd recipit
 python -m venv venv
