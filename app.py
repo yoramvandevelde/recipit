@@ -12,7 +12,8 @@ except ImportError:
     pass
 
 app = Flask(__name__)
-DATABASE = "recepten.db"
+# DATABASE = "recepten.db"
+DATABASE = os.environ.get("DATABASE_PATH", "recepten.db")
 HA_URL = os.environ.get("HA_URL", "").rstrip("/")
 HA_TOKEN = os.environ.get("HA_TOKEN", "")
 HA_LIST = "todo.shopping_list"
