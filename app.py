@@ -3,7 +3,9 @@ import os
 import urllib.request
 import urllib.error
 import json
+import bcrypt
 from flask import Flask, render_template, request, redirect, url_for, g, jsonify
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
 try:
     from dotenv import load_dotenv
@@ -12,12 +14,61 @@ except ImportError:
     pass
 
 app = Flask(__name__)
-# DATABASE = "recepten.db"
+app.secret_key = os.environ.get("SECRET_KEY", os.urandom(32))
+
 DATABASE = os.environ.get("DATABASE_PATH", "recepten.db")
 HA_URL = os.environ.get("HA_URL", "").rstrip("/")
 HA_TOKEN = os.environ.get("HA_TOKEN", "")
 HA_LIST = "todo.shopping_list"
 
+ADMIN_USER = os.environ.get("ADMIN_USER", "admin")
+ADMIN_PASSWORD_HASH = os.environ.get("ADMIN_PASSWORD_HASH", "").encode()
+
+# --- Auth ---
+
+login_manager = LoginManager(app)
+login_manager.login_view = "login"
+
+
+class User(UserMixin):
+    id = "admin"
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    if user_id == "admin":
+        return User()
+    return None
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for("index"))
+    error = None
+    if request.method == "POST":
+        username = request.form.get("username", "")
+        password = request.form.get("password", "").encode()
+        if (
+            username == ADMIN_USER
+            and ADMIN_PASSWORD_HASH
+            and bcrypt.checkpw(password, ADMIN_PASSWORD_HASH)
+        ):
+            remember = request.form.get("remember") == "on"
+            login_user(User(), remember=remember, duration=None)
+            return redirect(request.args.get("next") or url_for("index"))
+        error = "Ongeldige gebruikersnaam of wachtwoord."
+    return render_template("login.html", error=error)
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
+
+
+# --- DB ---
 
 def get_db():
     if "db" not in g:
@@ -55,7 +106,6 @@ def init_db():
             sort_order INTEGER NOT NULL DEFAULT 0
         );
     """)
-    # migratie voor bestaande DB
     for col, definition, table in [
         ("cook_time", "TEXT", "recipe"),
         ("prep_time", "TEXT", "recipe"),
@@ -65,7 +115,7 @@ def init_db():
         try:
             db.execute(f"ALTER TABLE {table} ADD COLUMN {col} {definition}")
         except sqlite3.OperationalError:
-            pass  # kolom bestaat al
+            pass
     db.commit()
     db.close()
 
@@ -73,6 +123,7 @@ def init_db():
 # --- Routes ---
 
 @app.route("/")
+@login_required
 def index():
     db = get_db()
     recipes = db.execute("SELECT * FROM recipe ORDER BY updated_at DESC").fetchall()
@@ -80,6 +131,7 @@ def index():
 
 
 @app.route("/search")
+@login_required
 def search():
     q = request.args.get("q", "").strip()
     db = get_db()
@@ -96,6 +148,7 @@ def search():
 
 
 @app.route("/recipes/new", methods=["GET", "POST"])
+@login_required
 def new_recipe():
     if request.method == "POST":
         return _save_recipe(None)
@@ -103,6 +156,7 @@ def new_recipe():
 
 
 @app.route("/recipes/<int:id>/tags", methods=["POST"])
+@login_required
 def update_tags(id):
     data = request.get_json()
     tags = data.get("tags", "") if data else ""
@@ -112,14 +166,8 @@ def update_tags(id):
     return "", 204
 
 
-
-def new_recipe():
-    if request.method == "POST":
-        return _save_recipe(None)
-    return render_template("edit.html", recipe=None, ingredients=[])
-
-
 @app.route("/recipes/<int:id>")
+@login_required
 def view_recipe(id):
     db = get_db()
     recipe = db.execute("SELECT * FROM recipe WHERE id = ?", [id]).fetchone()
@@ -130,6 +178,7 @@ def view_recipe(id):
 
 
 @app.route("/recipes/<int:id>/edit", methods=["GET", "POST"])
+@login_required
 def edit_recipe(id):
     db = get_db()
     recipe = db.execute("SELECT * FROM recipe WHERE id = ?", [id]).fetchone()
@@ -142,6 +191,7 @@ def edit_recipe(id):
 
 
 @app.route("/recipes/<int:id>/delete", methods=["POST"])
+@login_required
 def delete_recipe(id):
     db = get_db()
     db.execute("DELETE FROM recipe WHERE id = ?", [id])
@@ -150,6 +200,7 @@ def delete_recipe(id):
 
 
 @app.route("/recipes/<int:id>/cook")
+@login_required
 def cook(id):
     db = get_db()
     recipe = db.execute("SELECT * FROM recipe WHERE id = ?", [id]).fetchone()
@@ -160,6 +211,7 @@ def cook(id):
 
 
 @app.route("/recipes/<int:id>/shop", methods=["POST"])
+@login_required
 def add_to_shopping_list(id):
     if not HA_URL or not HA_TOKEN:
         return jsonify({"error": "HA niet geconfigureerd"}), 503
@@ -201,16 +253,6 @@ def add_to_shopping_list(id):
     return "", 204
 
 
-
-def cook(id):
-    db = get_db()
-    recipe = db.execute("SELECT * FROM recipe WHERE id = ?", [id]).fetchone()
-    if not recipe:
-        return "Recept niet gevonden", 404
-    ingredients = db.execute("SELECT * FROM ingredient WHERE recipe_id = ? ORDER BY sort_order", [id]).fetchall()
-    return render_template("cook.html", recipe=recipe, ingredients=ingredients)
-
-
 # --- Helpers ---
 
 def _save_recipe(id):
@@ -221,7 +263,6 @@ def _save_recipe(id):
     steps = f.get("steps", "").strip()
     servings = int(f.get("servings") or 2)
     cook_time = f.get("cook_time", "").strip() or None
-    prep_time = f.get("prep_time", "").strip() or None
     prep_time = f.get("prep_time", "").strip() or None
     tags = f.get("tags_value", "").strip() or None
 

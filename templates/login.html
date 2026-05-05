@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Inloggen{% endblock %}
+
+{% block content %}
+<div style="max-width: 360px; margin: 4rem auto;">
+  <h1 style="margin-bottom: 1.5rem;">Inloggen</h1>
+
+  {% if error %}
+  <p style="color: var(--danger); margin-bottom: 1rem; font-size: 0.9rem;">{{ error }}</p>
+  {% endif %}
+
+  <form method="POST" class="recipe-form">
+    <label>
+      Gebruikersnaam
+      <input name="username" type="text" autocomplete="username" autofocus>
+    </label>
+    <label>
+      Wachtwoord
+      <input name="password" type="password" autocomplete="current-password">
+    </label>
+    <label style="flex-direction: row; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text);">
+      <input name="remember" type="checkbox" checked style="width: auto;">
+      Onthoud mij (30 dagen)
+    </label>
+    <button type="submit" class="btn btn-primary">Inloggen</button>
+  </form>
+</div>
+{% endblock %}
