@@ -4,7 +4,7 @@ import urllib.request
 import urllib.error
 import json
 import bcrypt
-from flask import Flask, render_template, request, redirect, url_for, g, jsonify
+from flask import Flask, render_template, request, redirect, url_for, g, jsonify, send_file, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
 try:
@@ -66,6 +66,43 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("login"))
+
+
+# --- Admin ---
+
+@app.route("/admin")
+@login_required
+def admin():
+    db_size = os.path.getsize(DATABASE) if os.path.exists(DATABASE) else 0
+    return render_template("admin.html", db_size=db_size, db_path=DATABASE)
+
+
+@app.route("/admin/db/download")
+@login_required
+def db_download():
+    return send_file(
+        os.path.abspath(DATABASE),
+        as_attachment=True,
+        download_name="recepten.db",
+        mimetype="application/octet-stream",
+    )
+
+
+@app.route("/admin/db/upload", methods=["POST"])
+@login_required
+def db_upload():
+    f = request.files.get("database")
+    if not f or not f.filename.endswith(".db"):
+        flash("Ongeldig bestand. Upload een .db file.", "error")
+        return redirect(url_for("admin"))
+
+    db = g.pop("db", None)
+    if db:
+        db.close()
+
+    f.save(DATABASE)
+    flash("Database succesvol vervangen.", "success")
+    return redirect(url_for("admin"))
 
 
 # --- DB ---
