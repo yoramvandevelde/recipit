@@ -40,6 +40,7 @@ def load_user(user_id):
         return User()
     return None
 
+# --- Health Check ---
 
 @app.route('/health')
 def health():
