@@ -41,6 +41,11 @@ def load_user(user_id):
     return None
 
 
+@app.route('/health')
+def health():
+    return {'status': 'ok'}, 200
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -288,6 +293,8 @@ def add_to_shopping_list(id):
     if errors:
         return jsonify({"error": errors}), 502
     return "", 204
+
+
 
 
 # --- Helpers ---
