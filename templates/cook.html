@@ -9,7 +9,11 @@
 <button id="ing-toggle" class="btn">Ingrediënten</button>
 
 <h1>{{ recipe.title }}</h1>
-<p class="meta">{{ recipe.servings }} personen{% if recipe.cook_time %} &middot; {{ recipe.cook_time }}{% endif %}</p>
+<p class="meta">
+  {{ recipe.servings }} personen
+  {% if recipe.prep_time %}<span class="time-badge"><i class="fa-solid fa-utensils"></i> {{ recipe.prep_time }}</span>{% endif %}
+  {% if recipe.cook_time %}<span class="time-badge"><i class="fa-solid fa-fire"></i> {{ recipe.cook_time }}</span>{% endif %}
+</p>
 
 <pre class="steps steps-cook">{{ recipe.steps }}</pre>
 

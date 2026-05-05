@@ -6,7 +6,7 @@
 
 <h1>{% if recipe %}{{ recipe.title }} bewerken{% else %}Nieuw recept{% endif %}</h1>
 
-<form method="POST" class="recipe-form">
+<form method="POST" class="recipe-form" {% if recipe %}data-recipe-id="{{ recipe.id }}"{% endif %}>
   <label>
     Titel
     <input name="title" value="{{ recipe.title if recipe else '' }}" required>
@@ -17,10 +17,16 @@
     <input name="servings" type="number" min="1" value="{{ recipe.servings if recipe else 2 }}">
   </label>
 
-  <label>
-    Kooktijd <span class="label-optional">(optioneel)</span>
-    <input name="cook_time" placeholder="bijv. 45 min" value="{{ recipe.cook_time if recipe and recipe.cook_time else '' }}">
-  </label>
+  <div class="time-fields">
+    <label>
+      <span class="time-label"><i class="fa-solid fa-utensils"></i> Voorbereiding</span>
+      <input name="prep_time" placeholder="bijv. 15 min" value="{{ recipe.prep_time if recipe and recipe.prep_time else '' }}">
+    </label>
+    <label>
+      <span class="time-label"><i class="fa-solid fa-fire"></i> Kook / baktijd</span>
+      <input name="cook_time" placeholder="bijv. 30 min" value="{{ recipe.cook_time if recipe and recipe.cook_time else '' }}">
+    </label>
+  </div>
 
   <div class="form-group">
     <span class="form-label">Tags <span class="label-optional">(optioneel, spatie of enter om toe te voegen)</span></span>

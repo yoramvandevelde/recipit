@@ -120,6 +120,19 @@ function setTags(tags) {
   if (tagsValue) tagsValue.value = tags.join(",");
 }
 
+const recipeId = document.querySelector(".recipe-form")?.dataset.recipeId;
+
+function autoSaveTags() {
+  if (!recipeId) return; // nieuw recept, geen autosave
+  const title = document.querySelector("input[name='title']")?.value.trim();
+  if (!title) return; // geen titel, niet de moeite
+  fetch(`/recipes/${recipeId}/tags`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ tags: tagsValue?.value || "" }),
+  });
+}
+
 function renderTag(tag) {
   const pill = document.createElement("span");
   pill.className = "tag-pill";
@@ -128,8 +141,8 @@ function renderTag(tag) {
     const tags = getTags().filter(t => t !== tag);
     setTags(tags);
     pill.remove();
+    autoSaveTags();
   });
-  // insert before the text input
   tagBox?.insertBefore(pill, tagText);
 }
 
@@ -140,6 +153,7 @@ function addTag(raw) {
   if (existing.includes(tag)) return;
   setTags([...existing, tag]);
   renderTag(tag);
+  autoSaveTags();
 }
 
 tagText?.addEventListener("keydown", e => {

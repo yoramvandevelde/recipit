@@ -44,6 +44,7 @@ def init_db():
     # migratie voor bestaande DB
     for col, definition, table in [
         ("cook_time", "TEXT", "recipe"),
+        ("prep_time", "TEXT", "recipe"),
         ("tags", "TEXT", "recipe"),
         ("sort_order", "INTEGER NOT NULL DEFAULT 0", "ingredient"),
     ]:
@@ -61,10 +62,43 @@ def init_db():
 def index():
     db = get_db()
     recipes = db.execute("SELECT * FROM recipe ORDER BY updated_at DESC").fetchall()
-    return render_template("index.html", recipes=recipes)
+    return render_template("index.html", recipes=recipes, query=None)
+
+
+@app.route("/search")
+def search():
+    q = request.args.get("q", "").strip()
+    db = get_db()
+    if q:
+        results = db.execute("""
+            SELECT DISTINCT r.* FROM recipe r
+            LEFT JOIN ingredient i ON i.recipe_id = r.id
+            WHERE r.title LIKE ? OR r.tags LIKE ? OR i.item LIKE ?
+            ORDER BY r.updated_at DESC
+        """, [f"%{q}%", f"%{q}%", f"%{q}%"]).fetchall()
+    else:
+        results = db.execute("SELECT * FROM recipe ORDER BY updated_at DESC").fetchall()
+    return render_template("index.html", recipes=results, query=q or None)
 
 
 @app.route("/recipes/new", methods=["GET", "POST"])
+def new_recipe():
+    if request.method == "POST":
+        return _save_recipe(None)
+    return render_template("edit.html", recipe=None, ingredients=[])
+
+
+@app.route("/recipes/<int:id>/tags", methods=["POST"])
+def update_tags(id):
+    data = request.get_json()
+    tags = data.get("tags", "") if data else ""
+    db = get_db()
+    db.execute("UPDATE recipe SET tags=? WHERE id=?", [tags, id])
+    db.commit()
+    return "", 204
+
+
+
 def new_recipe():
     if request.method == "POST":
         return _save_recipe(None)
@@ -121,18 +155,20 @@ def _save_recipe(id):
     steps = f.get("steps", "").strip()
     servings = int(f.get("servings") or 2)
     cook_time = f.get("cook_time", "").strip() or None
+    prep_time = f.get("prep_time", "").strip() or None
+    prep_time = f.get("prep_time", "").strip() or None
     tags = f.get("tags_value", "").strip() or None
 
     if id is None:
         cur = db.execute(
-            "INSERT INTO recipe (title, steps, servings, cook_time, tags) VALUES (?, ?, ?, ?, ?)",
-            [title, steps, servings, cook_time, tags],
+            "INSERT INTO recipe (title, steps, servings, cook_time, prep_time, tags) VALUES (?, ?, ?, ?, ?, ?)",
+            [title, steps, servings, cook_time, prep_time, tags],
         )
         id = cur.lastrowid
     else:
         db.execute(
-            "UPDATE recipe SET title=?, steps=?, servings=?, cook_time=?, tags=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
-            [title, steps, servings, cook_time, tags, id],
+            "UPDATE recipe SET title=?, steps=?, servings=?, cook_time=?, prep_time=?, tags=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
+            [title, steps, servings, cook_time, prep_time, tags, id],
         )
         db.execute("DELETE FROM ingredient WHERE recipe_id=?", [id])
 
