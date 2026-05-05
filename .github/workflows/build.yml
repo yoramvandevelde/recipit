@@ -1,4 +1,28 @@
-- name: Build and push
+name: Build and push recipit
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.py'
+      - 'templates/**'
+      - 'static/**'
+      - 'Dockerfile'
+      - 'requirements.txt'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -6,14 +30,12 @@
           tags: |
             ghcr.io/yoramvandevelde/recipit:latest
             ghcr.io/yoramvandevelde/recipit:${{ github.sha }}
-
       - name: Update gitops repo
         uses: actions/checkout@v4
         with:
           repository: yoramvandevelde/k3s-gitops
           token: ${{ secrets.GITOPS_PAT }}
           path: k3s-gitops
-
       - name: Update image tag
         run: |
           sed -i 's|ghcr.io/yoramvandevelde/recipit:.*|ghcr.io/yoramvandevelde/recipit:${{ github.sha }}|' \
