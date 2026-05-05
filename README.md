@@ -15,6 +15,12 @@ A self-hosted web application for managing recipes with cook mode, shopping list
 -  Database backup/restore via admin panel
 -  Password-protected access
 
+### Included recipe database
+
+The repository includes a small seed SQLite database with some example recipes, written in Dutch. This makes the app usable immediately after cloning or running the Docker image.
+
+Recipe improvements are welcome. Since the recipes live in `recepten.db`, recipe changes can be submitted as pull requests as well.
+
 ## Quick Start with Docker
 
 ```bash
